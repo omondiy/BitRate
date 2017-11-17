@@ -17,7 +17,8 @@ public class RateCardList extends AppCompatActivity {
     Parcelable mListInstanceState;
     static String LIST_INSTANCE_STATE;
     String[] currencies;
-
+    String currencyval;
+    String coinval;
     @Override
     protected void onStart() {
         super.onStart();
@@ -65,19 +66,24 @@ public class RateCardList extends AppCompatActivity {
 
         listview = (ListView) findViewById(R.id.listview);
 
-        String[] currencies = {"USD", "EUR", "Pencils", "Notebooks" };
-        ArrayList<String> aList = new ArrayList<String>(Arrays.asList(currencies));
-        // Pass the results into ListViewAdapter.java
-        rateCardAdapter = new RateAdapter(RateCardList.this, R.layout.list_item_card, arraycard);
-        // Set the adapter to the ListView
-        Log.e("searchresultsadapter3",String.valueOf(rateCardAdapter));
-        listview.setAdapter(rateCardAdapter);
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            currencyval = extras.getString("currencyval");
+            coinval = extras.getString("coinval");
 
-        //Prevent null parcelable objects
-        if(!state.equals("0")) {
-            listview.onRestoreInstanceState(mListInstanceState);
+            Cards cards = new Cards();
+            cards.setCurrency(currencyval);
+            cards.setCoin(coinval);
+            // Pass the results into RateAdapter.java
+            rateCardAdapter = new RateAdapter(RateCardList.this, R.layout.list_item_card, arraycard);
+            listview.setAdapter(rateCardAdapter);
+            //Prevent null parcelable objects
+            if(!state.equals("0")) {
+                listview.onRestoreInstanceState(mListInstanceState);
+            }
+            // Locate the gridView in gridView_main.xml
+            rateCardAdapter.notifyDataSetChanged();
         }
-        // Locate the gridView in gridView_main.xml
-        rateCardAdapter.notifyDataSetChanged();
+
     }
 }

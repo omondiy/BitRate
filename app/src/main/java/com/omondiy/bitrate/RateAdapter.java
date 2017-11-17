@@ -1,6 +1,7 @@
 package com.omondiy.bitrate;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
@@ -22,11 +23,15 @@ import com.squareup.picasso.Transformation;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 public class RateAdapter extends ArrayAdapter<Cards> implements Filterable {
     ArrayList<Cards> data=new ArrayList<>(); //data = countryList
     private ArrayList<Cards> originalList;
+
+    private List<Cards> cardlist = null;
+
     private Filter filter;
     Context context;
     SharedPreferences set;
@@ -44,6 +49,22 @@ public class RateAdapter extends ArrayAdapter<Cards> implements Filterable {
     }
 
     @Override
+    public int getCount() {
+        return data.size();
+    }
+
+    @Override
+    public Cards getItem(int position) {
+        return data.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+
+    @Override
     public Filter getFilter() {
         if (filter == null) {
             filter = new NameFilter();
@@ -55,8 +76,8 @@ public class RateAdapter extends ArrayAdapter<Cards> implements Filterable {
      *********/
     public static class ViewHolder {
 
-        public TextView text1;
-        public TextView text2;
+        public TextView currrency;
+        public TextView coin;
         public TextView text3;
         public ImageView img1;
 
@@ -73,7 +94,7 @@ public class RateAdapter extends ArrayAdapter<Cards> implements Filterable {
 
     @SuppressWarnings("null")
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         View v = convertView;
         ViewHolder holder;
         if (convertView == null) {
@@ -87,8 +108,8 @@ public class RateAdapter extends ArrayAdapter<Cards> implements Filterable {
             set = getContext().getSharedPreferences("infomoby", Context.MODE_PRIVATE);
             ed = set.edit();
 
-            holder.text1 = (TextView) v.findViewById(R.id.text1);
-            holder.text2 = (TextView) v.findViewById(R.id.text2);
+            holder.currrency = (TextView) v.findViewById(R.id.currrency);
+            holder.coin = (TextView) v.findViewById(R.id.coin);
             holder.text3 = (TextView) v.findViewById(R.id.text3);
             holder.img1 = (ImageView) v.findViewById(R.id.img1);
 
@@ -109,10 +130,23 @@ public class RateAdapter extends ArrayAdapter<Cards> implements Filterable {
             e.printStackTrace();
         }
 
-        holder.text1.setText(getDate(app.getText1()));
-        holder.text2.setText("~" + app.getText2());
+        holder.currrency.setText(app.getCurrency());
+        holder.coin.setText(app.getCoin());
         holder.text3.setText(app.getText3());
 
+        v.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View arg0) {
+                // Send single item click data to SingleItemView Class
+                Intent intent = new Intent(getContext(), ViewCard.class);
+                // Pass all data flag
+                intent.putExtra("currencyval",(cardlist.get(position).getCurrency()));
+                intent.putExtra("coinval",(cardlist.get(position).getCoin()));
+                // Start SingleItemView Class
+                getContext().startActivity(intent);
+            }
+        });
         return v;
 
     }
@@ -147,7 +181,7 @@ public class RateAdapter extends ArrayAdapter<Cards> implements Filterable {
                 for(int i = 0, l = originalList.size(); i < l; i++)
                 {
                     Cards nameList = originalList.get(i);
-                    if(nameList.getText1().toString().toLowerCase().contains(constraint))
+                    if(nameList.getCurrency().toString().toLowerCase().contains(constraint))
                         filteredItems.add(nameList);
                 }
                 result.count = filteredItems.size();

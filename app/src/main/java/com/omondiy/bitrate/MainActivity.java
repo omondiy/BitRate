@@ -1,5 +1,6 @@
 package com.omondiy.bitrate;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -37,7 +39,7 @@ public class MainActivity extends AppCompatActivity
     JSONObject jsonobject;
     String myUrl;
     List<String> coinarraylist;
-    Spinner coinspinner;
+    Spinner spinner, coinspinner;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,12 +69,26 @@ public class MainActivity extends AppCompatActivity
                 "MXN", "ILS", "MYR", "NZD", "SEK", "CHF", "NOK", "BRL", "TRY", "PKR", "NGN" };
         List<String> aList = new ArrayList<String>(Arrays.asList(currencies));
 
-        Spinner spinner = (Spinner) findViewById(R.id.currencyspinner);
+        spinner = (Spinner) findViewById(R.id.currencyspinner);
+        coinspinner = (Spinner) findViewById(R.id.coinspinner);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,aList);
         spinner.setAdapter(adapter);
 
         new FetchCoins().execute();
+
+        Button createCard = (Button) findViewById(R.id.createCard);
+        createCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, RateCardList.class);
+                String currencyval = String.valueOf(spinner.getSelectedItem());
+                String coinval = String.valueOf(coinspinner.getSelectedItem());
+                intent.putExtra("currencyval", currencyval);
+                intent.putExtra("coinval", coinval);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -173,7 +189,6 @@ public class MainActivity extends AppCompatActivity
             // Locate the listview in listview_main.xml
             Coins list = new Coins();
 
-            coinspinner = (Spinner) findViewById(R.id.coinspinner);
             if(coinarraylist.size() > 0){
                 ArrayAdapter<String> coinadapter = new ArrayAdapter<String>(getApplicationContext(),android.R.layout.simple_spinner_item,coinarraylist);
                 coinspinner.setAdapter(coinadapter);
